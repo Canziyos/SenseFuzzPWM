@@ -5,8 +5,8 @@ class PWM:
         """
         Generic PWM controller.
         mode: 'buzzer', 'led', 'servo', or 'generic'
-        freq: default frequency in Hz
-        duty: initial duty in % (0-100)
+        freq: default frequency in Hz.
+        duty: initial duty in % (0-100).
         """
         self.pin = Pin(pin, Pin.OUT)
         self.pwm = PWM(self.pin)
@@ -15,12 +15,12 @@ class PWM:
         self.set_duty(duty)
 
     def set_frequency(self, freq):
-        # Clamp to safe MicroPython range
-        freq = min(max(int(freq), 1), 20000)  # 1 Hz to 20 kHz
+        # Clamp to safe MicroPython range.
+        freq = min(max(int(freq), 1), 20000)  # 1 Hz to 20 kHz.
         self.pwm.freq(freq)
 
     def set_duty(self, duty_percent):
-        # Clamp 0-100% and map to 0-65535
+        # Clamp 0-100% and map to 0-65535.
         duty_percent = min(max(duty_percent, 0), 100)
         self.pwm.duty_u16(int(duty_percent / 100 * 65535))
 
