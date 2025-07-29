@@ -3,35 +3,55 @@ from time import ticks_ms
 
 class MotionDistanceManager:
     def __init__(self, pir_sensor, distance_sensor, active_ms=60000):
+        # PIR and distance sensor objects.
         self.pir = pir_sensor
         self.distance = distance_sensor
         self.active_ms = active_ms
         self.state = "IDLE"
-        self.last_motion = 0  # last time PIR was HIGH
+        self.last_motion = 0  # last time PIR was HIGH.
 
     def update(self):
         """
         Returns:
           - active (bool): should fuzzy logic run?
-          - distance (mm or None): current distance (if active)
+          - distance (mm or None): current distance (if active).
         """
-        now = ticks_ms()
-        pir_value = self.pir.read()
+        try:
+            now = ticks_ms()
 
-        # --- STATE LOGIC ---
-        if self.state == "IDLE":
-            if pir_value == 1:  # Motion detected
-                self.state = "ACTIVE"
-                self.last_motion = now
+            # --- PIR READ ---
+            pir_value = 0
+            try:
+                pir_value = self.pir.read() if self.pir else 0  # safe PIR read.
+            except Exception as e:
+                print("PIR read error in manager:", e)
+                pir_value = 0
 
-        elif self.state == "ACTIVE":
-            if pir_value == 1:
-                self.last_motion = now  # refresh active window.
-            elif now - self.last_motion > self.active_ms:
-                self.state = "IDLE"  # 1 min expired.
-    
+            # --- STATE LOGIC ---
+            if self.state == "IDLE":
+                if pir_value == 1:  # Motion detected.
+                    self.state = "ACTIVE"
+                    self.last_motion = now
 
-        # --- OUTPUT ---
-        active = self.state == ("ACTIVE")
-        distance = self.distance.read() if active else None
-        return active, distance
+            elif self.state == "ACTIVE":
+                if pir_value == 1:
+                    self.last_motion = now  # refresh active window.
+                elif now - self.last_motion > self.active_ms:
+                    self.state = "IDLE"  # 1 min expired.
+
+            # --- OUTPUT ---
+            active = self.state == "ACTIVE"
+            distance = None
+            if active and self.distance:
+                try:
+                    distance = self.distance.read()  # safe ultrasonic read.
+                except Exception as e:
+                    print("Distance read error in manager:", e)
+                    distance = None
+
+            return active, distance
+
+        except Exception as e:
+            # Top-level fallback: system stays safe if manager crashes.
+            print("Manager update error:", e)
+            return False, None
