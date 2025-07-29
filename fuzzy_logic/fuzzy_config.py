@@ -7,14 +7,14 @@ from membership import gaussian, trapezoidal, triangular
 # Input fuzzy sets (distance in mm)
 input_sets = {
     "distance": {
-        "very_close": gaussian(500, 300),   # 0–600 mm range
-        "close": gaussian(1000, 300),        # overlaps with very_close & medium
-        "medium": gaussian(1500, 300),      # central zone
+        "very_close": gaussian(500, 300),
+        "close": gaussian(1000, 300),       # overlaps with very_close & medium
+        "medium": gaussian(1500, 300),      # overlaps with close & far
         "far": gaussian(2000, 300)          # overlaps with medium
     }
 }
 
-# Output fuzzy sets: Duty (0–100%)
+# Output fuzzy sets: Duty (0–100%).
 duty_sets = {
     "low": trapezoidal(0, 0, 20, 40),
     "medium": triangular(30, 50, 70),
@@ -28,7 +28,7 @@ freq_sets = {
     "high": gaussian(1700, 200)
 }
 
-# Combine outputs
+# Combine outputs.
 output_sets = {
     "duty": duty_sets,
     "freq": freq_sets
