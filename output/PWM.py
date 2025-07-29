@@ -1,4 +1,4 @@
-from machine import Pin, PWM
+from machine import Pin, PWM as HW_PWM
 
 class PWM:
     def __init__(self, pin, mode="generic", freq=1000, duty=0):
@@ -9,7 +9,7 @@ class PWM:
         duty: initial duty in % (0-100).
         """
         self.pin = Pin(pin, Pin.OUT)
-        self.pwm = PWM(self.pin)
+        self.pwm = HW_PWM(self.pin)
         self.mode = mode
         self.set_frequency(freq)
         self.set_duty(duty)

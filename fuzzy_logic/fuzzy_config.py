@@ -4,16 +4,13 @@ from membership import gaussian, trapezoidal, triangular
 # Fuzzy logic definition
 # ======================
 
-# Input fuzzy sets (distance in mm) + motion (binary)
+# Input fuzzy sets (distance in mm)
 input_sets = {
     "distance": {
-        "close": gaussian(0, 200),
-        "medium": gaussian(1500, 500),
-        "far": gaussian(3000, 400)
-    },
-    "motion": {
-        "no_motion": lambda x: 1.0 if x == 0 else 0.0,
-        "motion": lambda x: 1.0 if x == 1 else 0.0
+        "very_close": gaussian(500, 300),   # 0–600 mm range
+        "close": gaussian(1000, 300),        # overlaps with very_close & medium
+        "medium": gaussian(1500, 300),      # central zone
+        "far": gaussian(2000, 300)          # overlaps with medium
     }
 }
 
@@ -43,15 +40,10 @@ output_ranges = {
     "freq": (100, 2000)
 }
 
-# Rules (currently motion only; distance rules commented for now)
+# Rules using 4 distance memberships
 rules = [
-    # Motion-based rules
-    {"if": {"motion": "motion"}, "then": {"freq": "high", "duty": "high"}},
-    {"if": {"motion": "no_motion"}, "then": {"freq": "low", "duty": "low"}},
-
-    # Distance-based rules (can re-enable later)
-    # {"if": {"distance": "close"}, "then": {"freq": "high", "duty": "medium"}},
-    # {"if": {"distance": "medium"}, "then": {"freq": "medium", "duty": "high"}},
-    # {"if": {"distance": "far"}, "then": {"freq": "low", "duty": "low"}},
-    # {"if": {"distance": "close"}, "then": {"freq": "high", "duty": "high"}}
+    {"if": {"distance": "very_close"}, "then": {"freq": "high", "duty": "high"}},
+    {"if": {"distance": "close"},      "then": {"freq": "high", "duty": "medium"}},
+    {"if": {"distance": "medium"},     "then": {"freq": "medium", "duty": "low"}},
+    {"if": {"distance": "far"},        "then": {"freq": "low", "duty": "low"}}
 ]
